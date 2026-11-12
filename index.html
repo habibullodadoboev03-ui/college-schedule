@@ -1,0 +1,423 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College Schedule</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #080d1b;
+    color: white;
+    min-height: 100vh;
+    padding: 30px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.logo span {
+    color: #6c8cff;
+}
+
+.subtitle {
+    color: #8994ad;
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+.badge {
+    background: #182443;
+    color: #8faaff;
+    padding: 12px 20px;
+    border-radius: 12px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+}
+
+.welcome {
+    margin-bottom: 30px;
+}
+
+.welcome h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: #8994ad;
+}
+
+.tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.tab {
+    padding: 14px 28px;
+    background: #141d33;
+    color: #aab5cd;
+    border: 1px solid #263452;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.tab:hover {
+    background: #26385f;
+}
+
+.tab.active {
+    background: #5479f7;
+    color: white;
+    border-color: #5479f7;
+}
+
+.day {
+    background: #111a2e;
+    border: 1px solid #202d48;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 17px;
+    transition: 0.3s;
+}
+
+.day:hover {
+    border-color: #5479f7;
+    transform: translateY(-2px);
+}
+
+.day h2 {
+    font-size: 19px;
+    margin-bottom: 17px;
+}
+
+.lesson {
+    display: grid;
+    grid-template-columns: 65px 1fr 100px;
+    gap: 15px;
+    align-items: center;
+    padding: 14px;
+    background: #19243c;
+    border-radius: 10px;
+    margin-bottom: 9px;
+}
+
+.number {
+    color: #7f9cff;
+    font-weight: bold;
+}
+
+.subject {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.info {
+    font-size: 12px;
+    color: #8994ad;
+}
+
+.room {
+    color: #8faaff;
+    text-align: right;
+    font-size: 13px;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+.actions button {
+    background: #5479f7;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.actions button:hover {
+    background: #7392ff;
+    transform: scale(1.03);
+}
+
+.actions .reset {
+    background: #29344d;
+}
+
+footer {
+    text-align: center;
+    color: #596781;
+    margin-top: 40px;
+    font-size: 12px;
+}
+
+@media(max-width:600px) {
+    body {
+        padding: 16px;
+    }
+
+    .welcome h1 {
+        font-size: 25px;
+    }
+
+    .lesson {
+        grid-template-columns: 40px 1fr;
+    }
+
+    .room {
+        grid-column: 2;
+        text-align: left;
+    }
+
+    .tabs {
+        width: 100%;
+    }
+
+    .tab {
+        flex: 1;
+        padding: 12px 5px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+    <div>
+        <div class="logo">COLLEGE<span>.</span></div>
+        <div class="subtitle">STUDENT SCHEDULE SYSTEM</div>
+    </div>
+    <div class="badge">📚 Учебное расписание</div>
+</header>
+
+<section class="welcome">
+    <h1>Моё расписание</h1>
+    <p>Выбери учебную неделю и посмотри свои занятия.</p>
+</section>
+
+<div class="tabs">
+    <button class="tab active" onclick="changeWeek(1)">
+        Неделя 1
+    </button>
+
+    <button class="tab" onclick="changeWeek(2)">
+        Неделя 2
+    </button>
+</div>
+
+<div id="schedule"></div>
+
+<div class="actions">
+    <button onclick="editSchedule()">✏️ Редактировать</button>
+    <button onclick="saveSchedule()">💾 Сохранить</button>
+    <button class="reset" onclick="resetSchedule()">Сбросить</button>
+</div>
+
+<footer>
+    COLLEGE SCHEDULE © 2026
+    <br><br>
+    Учебное расписание колледжа
+</footer>
+
+</div>
+
+<script>
+
+const days = [
+    "Понедельник",
+    "Вторник",
+    "Среда",
+    "Четверг",
+    "Пятница",
+    "Суббота"
+];
+
+const defaultSchedule = {
+    1: {},
+    2: {}
+};
+
+days.forEach(day => {
+    defaultSchedule[1][day] = [
+        {subject:"Информатика", teacher:"Преподаватель", time:"08:00 - 08:45", room:"101"},
+        {subject:"Математика", teacher:"Преподаватель", time:"08:50 - 09:35", room:"205"},
+        {subject:"Английский язык", teacher:"Преподаватель", time:"09:45 - 10:30", room:"103"}
+    ];
+
+    defaultSchedule[2][day] = [
+        {subject:"Программирование", teacher:"Преподаватель", time:"08:00 - 08:45", room:"105"},
+        {subject:"История", teacher:"Преподаватель", time:"08:50 - 09:35", room:"201"},
+        {subject:"Физика", teacher:"Преподаватель", time:"09:45 - 10:30", room:"202"}
+    ];
+});
+
+let schedule = JSON.parse(
+    localStorage.getItem("collegeSchedule")
+) || defaultSchedule;
+
+let currentWeek = 1;
+let editing = false;
+
+function changeWeek(week) {
+    currentWeek = week;
+
+    document.querySelectorAll(".tab").forEach((tab, index) => {
+        tab.classList.toggle("active", index === week - 1);
+    });
+
+    render();
+}
+
+function render() {
+    const container = document.getElementById("schedule");
+    container.innerHTML = "";
+
+    days.forEach(day => {
+        const card = document.createElement("div");
+        card.className = "day";
+
+        const title = document.createElement("h2");
+        title.textContent = "📅 " + day;
+        card.appendChild(title);
+
+        const lessons = schedule[currentWeek][day] || [];
+
+        lessons.forEach((lesson, index) => {
+            const item = document.createElement("div");
+            item.className = "lesson";
+
+            if (editing) {
+                item.innerHTML = `
+                    <div class="number">${index + 1} пара</div>
+                    <div>
+                        <input data-day="${day}" data-index="${index}" data-field="subject"
+                        value="${escapeHTML(lesson.subject)}" placeholder="Предмет">
+                        <input data-day="${day}" data-index="${index}" data-field="teacher"
+                        value="${escapeHTML(lesson.teacher)}" placeholder="Преподаватель">
+                        <input data-day="${day}" data-index="${index}" data-field="time"
+                        value="${escapeHTML(lesson.time)}" placeholder="Время">
+                        <input data-day="${day}" data-index="${index}" data-field="room"
+                        value="${escapeHTML(lesson.room)}" placeholder="Кабинет">
+                    </div>
+                    <div class="room">✏️ Изменение</div>
+                `;
+            } else {
+                item.innerHTML = `
+                    <div class="number">${index + 1} пара</div>
+                    <div>
+                        <div class="subject">${escapeHTML(lesson.subject)}</div>
+                        <div class="info">
+                            👨‍🏫 ${escapeHTML(lesson.teacher)}
+                            &nbsp; | &nbsp; 🕒 ${escapeHTML(lesson.time)}
+                        </div>
+                    </div>
+                    <div class="room">🚪 ${escapeHTML(lesson.room)}</div>
+                `;
+            }
+
+            card.appendChild(item);
+        });
+
+        container.appendChild(card);
+    });
+
+    document.querySelectorAll("input").forEach(input => {
+        input.style.cssText = `
+            display:block;
+            width:100%;
+            padding:9px;
+            margin:5px 0;
+            border-radius:6px;
+            border:1px solid #40547c;
+            background:#0c1427;
+            color:white;
+        `;
+    });
+}
+
+function editSchedule() {
+    editing = !editing;
+    render();
+}
+
+function saveSchedule() {
+    document.querySelectorAll("input[data-field]").forEach(input => {
+        const day = input.dataset.day;
+        const index = Number(input.dataset.index);
+        const field = input.dataset.field;
+
+        schedule[currentWeek][day][index][field] = input.value;
+    });
+
+    localStorage.setItem(
+        "collegeSchedule",
+        JSON.stringify(schedule)
+    );
+
+    editing = false;
+    render();
+
+    alert("Расписание успешно сохранено!");
+}
+
+function resetSchedule() {
+    if (confirm("Сбросить расписание обеих недель?")) {
+        schedule = JSON.parse(JSON.stringify(defaultSchedule));
+        localStorage.setItem(
+            "collegeSchedule",
+            JSON.stringify(schedule)
+        );
+        editing = false;
+        render();
+    }
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[char]);
+}
+
+render();
+
+</script>
+
+</body>
+</html>
